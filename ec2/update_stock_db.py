@@ -45,14 +45,29 @@ def getDbConnection():
     ----
     {psycopg2 connection object} -- Returns the connection object used to query the DB.
     """
-    conn = psycopg2.connect(
-        host=config.get('ec2', 'DB_HOST'),
-        port=config.get('ec2', 'DB_PORT'),
-        user=getDbCreds()['username'],
-        password=getDbCreds()['password']
-    )
 
-    conn.autocommit = True
+    conn = None
+
+    try:
+
+        conn = psycopg2.connect(
+            host=config.get('ec2', 'DB_HOST'),
+            port=config.get('ec2', 'DB_PORT'),
+            user=getDbCreds()['username'],
+            password=getDbCreds()['password']
+        )
+
+        conn.autocommit = True
+
+        print("----------------------------------------------------")
+        print("Connected to DB")
+        print("----------------------------------------------------")
+    except Exception as e:
+        print("----------------------------------------------------")
+        print("----------------------------------------------------")
+        print("----------------------------------------------------")
+        print(f"Connection failed!")
+        print("----------------------------------------------------")
 
     return conn
 
@@ -73,6 +88,9 @@ def getLatestTime():
     {str} -- The stock_id for that stock id in the db. This is a str but gets converted to a uuid when inserting
     """
     conn = getDbConnection()
+
+    if not conn:
+        exit(0)
 
     db_query = """
         select * 
@@ -209,19 +227,34 @@ def insertNewRows(df):
         password=getDbCreds()['password']       
     )
     db = create_engine(url)
-    conn = db.connect()
 
-    conn.autocommit = True
+    count = None
 
-    count = df.to_sql(
-        name = "stock_data",
-        con = conn, 
-        schema = "avg_inv",
-        if_exists='append',
-        index = False
-    )
+    try:
 
-    conn.close()
+        with db.begin() as conn:
+
+            conn.autocommit = True
+
+            count = df.to_sql(
+                name = "stock_data",
+                con = conn, 
+                schema = "avg_inv",
+                if_exists='append',
+                index = False
+            )
+            print("----------------------------------------------------")
+            print("Insert completed with no errors")
+            conn.close()
+    except Exception as e:
+        print("----------------------------------------------------")
+        print("----------------------------------------------------")
+        print("----------------------------------------------------")
+        print(f"Insert failed")
+        print("----------------------------------------------------")
+
+    if not count:
+        count = 0
 
     return count
 
@@ -242,10 +275,10 @@ if __name__ == "__main__":
 
     # Formatting Logging
     print(f"Data from {max_date} at {max_time} currently exist!")
+    print("----------------------------------------------------")
     print("Data to be inserted!")
     print("----------------------------------------------------")
     print(df)
-    print("----------------------------------------------------")
     print("----------------------------------------------------")
     print("Inserting above data!")
 
@@ -257,5 +290,5 @@ if __name__ == "__main__":
     max_date, max_time, stock_id = getLatestTime()
     print(f"Data from {max_date} at {max_time} now exist!")
 
-    print(count)
+    print(f"Rows affected: {count}")
 
