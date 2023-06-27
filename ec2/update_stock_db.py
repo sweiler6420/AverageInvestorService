@@ -96,7 +96,7 @@ def getLatestTime():
         select * 
         from avg_inv.stock_data 
         where 1=1
-        and date between current_date - 4 and current_date"""
+        and date between current_date - 14 and current_date"""
 
     cursor = conn.cursor()
     cursor.execute(db_query)
@@ -232,7 +232,7 @@ def insertNewRows(df):
 
     try:
 
-        with db.begin() as conn:
+        with db.connect() as conn:
 
             conn.autocommit = True
 
@@ -246,6 +246,7 @@ def insertNewRows(df):
             print("----------------------------------------------------")
             print("Insert completed with no errors")
             conn.close()
+            
     except Exception as e:
         print("----------------------------------------------------")
         print("----------------------------------------------------")
