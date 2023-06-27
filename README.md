@@ -180,3 +180,13 @@ ACCESS_TOKEN_EXPIRE_MINUTES={expiration in minutes}
 ## Tech Used
 
 AWS RDS
+
+## To build the Docker Image
+
+1. Open terminal to correct directory
+
+2. Run 
+
+```
+docker build -t [name of docker image] .
+```

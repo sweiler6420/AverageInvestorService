@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
 from datetime import datetime
 import pandas as pd
-import yfinance as yf
+# import yfinance as yf
 import requests
 import psycopg2
 import boto3
