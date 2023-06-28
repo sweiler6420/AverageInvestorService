@@ -1,5 +1,5 @@
 # The Average Investor -- Full Docs
-    - This website was built by Stephen Weiler in it's entirety. If you have any questions please let me know!
+    * This website was built by Stephen Weiler in it's entirety. If you have any questions please let me know!
 
 ## TABLE OF CONTENTS
 
@@ -28,10 +28,10 @@ I would like to note, that in order to make this website as effeciently as possi
 This website's front and back end was designed by myself and I attempted to keep it as modern as possible. To do this, I have been using AWS services as much as i can. 
 
 ### Database
-    - This website has a postgres database hosted on AWS RDS.
-    - Because of the data limitation on AWS free tier, the database only holds the "FAANG" stocks data. This data is 5 minute intraday data from 2020. 
-    - There is a folder called [db_migrations](db_migrations) that show the database iterations and script i have used to create the database. 
-    - Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
+    * This website has a postgres database hosted on AWS RDS.
+    * Because of the data limitation on AWS free tier, the database only holds the "FAANG" stocks data. This data is 5 minute intraday data from 2020. 
+    * There is a folder called [db_migrations](db_migrations) that show the database iterations and script i have used to create the database. 
+    * Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
 
 ### DB Update Microservice
    1. This microservice adds the last tradings days data into the DB for the "FAANG" stocks.
