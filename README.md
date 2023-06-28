@@ -1,4 +1,10 @@
+# The Average Investor -- Full Docs
+    - This website was built by Stephen Weiler in it's entirety. If you have any questions please let me know!
+
+## TABLE OF CONTENTS
+
 - [The Average Investor -- Full Docs](#the-average-investor----full-docs)
+  - [TABLE OF CONTENTS](#table-of-contents)
   - [Why?](#why)
   - [Structure](#structure)
   - [Services Used -- Setup](#services-used----setup)
@@ -7,8 +13,6 @@
       - [AWS EC2](#aws-ec2)
       - [AWS LAMBDA](#aws-lambda)
       - [AWS EVENTBRIDGE](#aws-eventbridge)
-
-# The Average Investor -- Full Docs
 
 ## Why?
 
