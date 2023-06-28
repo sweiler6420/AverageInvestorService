@@ -11,11 +11,19 @@ import json
 import os
 
 def getConfigVars():
+    """Used to retrieve config credentials from config.ini in AWS.
+    Overview:
+    ----
+    Have multiple config vars saved in a config.ini file
+    Returns:
+    ----
+    {config} -- Returns a config obj from the ConfigParser library
+    """
     config = ConfigParser()
     folder = os.path.dirname(os.path.abspath(__file__))
-    congifFile = os.path.join(folder, 'config.ini')
+    configFile = os.path.join(folder, 'config.ini')
 
-    config.read(congifFile)
+    config.read(configFile)
 
     return config
 
