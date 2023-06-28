@@ -37,7 +37,7 @@
   - This website has a postgres database hosted on AWS RDS.
   - Because of the data limitation on AWS free tier, the database only holds the "FAANG" stocks data. This data is 5 minute intraday data from 2020. 
   - There is a folder called [db_migrations](db_migrations) that show the database iterations and script i have used to create the database. 
-  Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
+  - Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
 
 ### DB Update Microservice
   1. This microservice adds the last tradings days data into the DB for the "FAANG" stocks.
@@ -59,7 +59,7 @@
 
 #### AWS RDS
 
-  In an effort to keep most of the backend data hands off, while using modern technologies, I decided to use AWS RDS. AWS allows up to 20gb of data and the db.t2.micro database instance. While I know this instance size it very small and does not leave room to grow, I had to compromise somewhere, and since I wanted to showcase full AWS integration, this was pretty much my only option.
+  In an effort to keep most of the backend data hands off, while using modern technologies, I decided to use AWS RDS. AWS allows up to 20gb of data and the db.t2.micro database instance. While I know this instance size is very small and does not leave room to grow, I had to compromise somewhere, and since I wanted to showcase full AWS integration, this was pretty much my only option.
 
   ##### AWS RDS -- Setup
 
@@ -83,6 +83,6 @@
 
 #### AWS EVENTBRIDGE
 
-  The last piece of the puzzle for our automated microservice is setting a trigger for our lambda. Eventbridge is surely our best option here since we only need it to be trigger mon-fri sometime in the night. It is easy enough to setup the EventBridge trigger and can actually be done through the Lambda function trigger settings!
+  The last piece of the puzzle for our automated microservice is setting a trigger for our lambda. Eventbridge is surely our best option here since we only need it to be triggered mon-fri sometime in the night. It is easy enough to setup the EventBridge trigger and can actually be done through the Lambda function trigger settings!
 
   ##### AWS EVENTBRIDGE -- Setup
