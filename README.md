@@ -38,7 +38,7 @@
    2. Starting from the bottom level. An AWS Eventbridge trigger is set to run everyday at 1 am to trigger an AWS Lambda.
    3. The AWS [Lambda Function](lambda/lambda_to_ec2.py) starts up an EC2 instance, runs a shell script, then stops the ec2 instance. 
    4. The EC2 instance is an Amazon Linux 2 instance. To setup this instance i created a shell script called [setup.sh](ec2/setup.sh). This instance also holds the [run.sh](ec2/run.sh) script that starts docker, pulls a docker image from ECR, runs that docker image, then deletes the docker image. 
-   5. In ECR, I am hosting a Docker repo of our [database update script](ec2/update_stock_db.py) in a python 3.7 base layer. The [Dockerfile](ec2/update_stock_db.py) can be seen here. This image is used to update our RDS DB with the latest data. This script grabs the latest data in the db, saves the current available date, and time, and stock_id for that stock. Then pulls the newest info that comes after that date and time and then inserts it into the db.
+   5. In ECR, I am hosting a Docker repo of our [database update script](ec2/update_stock_db.py) in a python 3.7 base layer. The [Dockerfile](ec2/Dockerfile) can be seen here. This image is used to update our RDS DB with the latest data. This script grabs the latest data in the db, saves the current available date, and time, and stock_id for that stock. Then pulls the newest info that comes after that date and time and then inserts it into the db.
    - Just a note here. There is a [requirements.txt](ec2/requirements.txt) for the docker image as well as a config.ini file. I decided not to include a template for the config.ini just to save me some time. 
 
 ### FastAPI
