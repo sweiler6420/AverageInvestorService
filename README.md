@@ -7,6 +7,9 @@
   - [TABLE OF CONTENTS](#table-of-contents)
   - [Why?](#why)
   - [Structure](#structure)
+    - [Database](#database)
+    - [DB Update Microservice](#db-update-microservice)
+    - [FastAPI](#fastapi)
   - [Services Used -- Setup](#services-used----setup)
       - [AWS RDS](#aws-rds)
       - [AWS ECR](#aws-ecr)
@@ -24,13 +27,13 @@ I would like to note, that in order to make this website as effeciently as possi
 
 This website's front and back end was designed by myself and I attempted to keep it as modern as possible. To do this, I have been using AWS services as much as i can. 
 
-1. Database
+### Database
     - This website has a postgres database hosted on AWS RDS.
     - Because of the data limitation on AWS free tier, the database only holds the "FAANG" stocks data. This data is 5 minute intraday data from 2020. 
     - There is a folder called [db_migrations](db_migrations) that show the database iterations and script i have used to create the database. 
     - Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
 
-2. DB Update Microservice
+### DB Update Microservice
    1. This microservice adds the last tradings days data into the DB for the "FAANG" stocks.
    2. Starting from the bottom level. An AWS Eventbridge trigger is set to run everyday at 1 am to trigger an AWS Lambda.
    3. The AWS [Lambda Function](lambda\lambda_to_ec2.py) starts up an EC2 instance, runs a shell script, then stops the ec2 instance. 
@@ -38,7 +41,7 @@ This website's front and back end was designed by myself and I attempted to keep
    5. In ECR, I am hosting a Docker repo of our [database update script](ec2\update_stock_db.py) in a python 3.7 base layer. The [Dockerfile](ec2\update_stock_db.py) can be seen here. This image is used to update our RDS DB with the latest data. This script grabs the latest data in the db, saves the current available date, and time, and stock_id for that stock. Then pulls the newest info that comes after that date and time and then inserts it into the db.
         - Just a note here. There is a [requirements.txt](ec2\requirements.txt) for the docker image as well as a config.ini file. I decided not to include a template for the config.ini just to save me some time. 
 
-3. FastAPI
+### FastAPI
    1. WIP! This is the next step in the creation of this website! Wish me luck!
 
 
