@@ -9,7 +9,7 @@ venv.bak/
 
 # API
 __pycache__/
-
+/backup
 
 # Data
 /data
