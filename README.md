@@ -186,6 +186,7 @@
   1. Navigate to IAM console and click create new policy.
   2. Select Elastic Container Registry for the service.
   3. I opted to use the JSON format. This can be seen below. If you use this input make sure to fill in the user specific data.
+
     ```
     {
       "Version": "2012-10-17",
@@ -211,9 +212,11 @@
       ]
     }
     ```
+
   4. Now go next and give this policy a useful name and description.
 
   - Now that your ECR policy is created, duplicate this process but this time select Secrets Manager. If you do not use the Secrets Manager service and you instead put your credentials as environment variables, this should not be needed. Below is the JSON format I used.
+
     ```
     {
       "Version": "2012-10-17",
@@ -227,6 +230,7 @@
       ]
     }
     ```
+    
   - If you have a keen eye, you can see that the resource that is allowed to be accessed is '*', this is because I only have 1 secret, but if you wanted to create a policy specific to a single secret name you can use the ARN in the resource location.
 
   ###### ECR Role
