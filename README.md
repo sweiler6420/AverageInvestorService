@@ -164,6 +164,7 @@
   3. EC2 -> SSM, ECR, RDS, Secret Manager: Our EC2 instance needs to be able to recieve SSM commands, as well as pull images from ECR, and also needs to be able to query and insert into the RDS Database with our Secret Manager data.
 
   ##### AWS LAMBDA -- Role/Policy Setup
+
     - For our microservice lambda function, we know we need to allow the lambda function to access EC2 but it also needs access to SSM. SSM is the AWS Systems Manager Agent, it is used to update, manager, and configure EC2 instances from the AWS api. This will be needed to execute a bash command on our EC2 instance, as if we SSHed into the instance and ran the command ourselves. This should be mentioned a bit during the EC2 Setup section.
 
     ###### Role
@@ -175,6 +176,7 @@
     6. Once your Role is created, you can officially create your Lambda function and attach that new Role to that new function.
 
   ##### AWS EC2 -- Role/Policy Setup
+  
     - Unlike our Lambda function, we need to create 2 policies as well as an EC2 role. We will start with the Policies.
 
     ###### ECR Policy
