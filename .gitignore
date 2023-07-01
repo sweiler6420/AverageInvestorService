@@ -10,6 +10,8 @@ venv.bak/
 # API
 __pycache__/
 /backup
+alembic
+*.ini
 
 # Data
 /data
@@ -21,6 +23,9 @@ __pycache__/
 config.ini
 configs.ini
 
+
+
+*.txt
 
 
 

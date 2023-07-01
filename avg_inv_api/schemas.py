@@ -47,3 +47,6 @@ class StockData(BaseModel):
     low_price: float
     close_price: float
     volume: int
+
+    class Config:
+        orm_mode = True

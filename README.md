@@ -56,10 +56,10 @@
   - Just a note here. There is a [requirements.txt](ec2/requirements.txt) for the docker image as well as a config.ini file. I decided not to include a template for the config.ini just to save me some time. 
 
 ### Back End
-  1. WIP! This is the next step in the creation of this website! Wish me luck!
+  1. WIP! This is the next step in the creation of this website! Wish me luck! The API will be created using python and fastapi. It will be ran serverless through lambda and utilize API Gateway for request configuration and tracking. While API Gateway is TOTALLY not needed for this project, it may be thrown out. I would like to include API Gateway but once again we are limited by AWS free tier usage. Depending on the size of the docker image for the api, i would like to use ECR again in order to make deployments and changes easier. I would also like to automate db migrations from the ECR image, possibly using lambda or ec2 to run the migrations but if i hit limitations i will have to settle for local migrations for the time being.
 
 ### Front End
-  1. React will be used for front end!
+  1. React will be used for front end and will be hosted using AWS Amplify. This is the ideal way of hosting the react front end but depending on the limitations i may have to swap it to EC2. I would prefer to host it using a seperate AWS Service in order to integrate as many services as i can.
 
 ## Services Used
 
@@ -230,7 +230,7 @@
       ]
     }
     ```
-    
+
   - If you have a keen eye, you can see that the resource that is allowed to be accessed is '*', this is because I only have 1 secret, but if you wanted to create a policy specific to a single secret name you can use the ARN in the resource location.
 
   ###### ECR Role
