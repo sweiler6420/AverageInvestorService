@@ -26,7 +26,10 @@
         - [AWS EVENTBRIDGE -- Setup](#aws-eventbridge----setup)
       - [AWS IAM ROLES AND POLICIES](#aws-iam-roles-and-policies)
         - [AWS LAMBDA -- Role/Policy Setup](#aws-lambda----rolepolicy-setup)
+          - [Role](#role)
         - [AWS EC2 -- Role/Policy Setup](#aws-ec2----rolepolicy-setup)
+          - [ECR Policy](#ecr-policy)
+          - [ECR Role](#ecr-role)
 
 ## Why?
 
@@ -165,71 +168,71 @@
 
   ##### AWS LAMBDA -- Role/Policy Setup
 
-    - For our microservice lambda function, we know we need to allow the lambda function to access EC2 but it also needs access to SSM. SSM is the AWS Systems Manager Agent, it is used to update, manager, and configure EC2 instances from the AWS api. This will be needed to execute a bash command on our EC2 instance, as if we SSHed into the instance and ran the command ourselves. This should be mentioned a bit during the EC2 Setup section.
+  - For our microservice lambda function, we know we need to allow the lambda function to access EC2 but it also needs access to SSM. SSM is the AWS Systems Manager Agent, it is used to update, manager, and configure EC2 instances from the AWS api. This will be needed to execute a bash command on our EC2 instance, as if we SSHed into the instance and ran the command ourselves. This should be mentioned a bit during the EC2 Setup section.
 
-    ###### Role
-    1. In order to allow our Lambda function to access EC2, we first must make a new Role. Head over to IAM console and click on Role. Click create new Role.
-    2. Because this Role will be used to connect 1 AWS Service to another, select AWS Service as the trusted entity type.
-    3. Next select Lambda as our Use case.
-    4. On the next page, you can add policies to the role. I select ```'AmazonEC2FullAccess', 'AWSLambdaExecute', 'AmazonSSMFullAccess'```.
-    5. Finally hit next and give your role a name.
-    6. Once your Role is created, you can officially create your Lambda function and attach that new Role to that new function.
+  ###### Role
+  1. In order to allow our Lambda function to access EC2, we first must make a new Role. Head over to IAM console and click on Role. Click create new Role.
+  2. Because this Role will be used to connect 1 AWS Service to another, select AWS Service as the trusted entity type.
+  3. Next select Lambda as our Use case.
+  4. On the next page, you can add policies to the role. I select ```'AmazonEC2FullAccess', 'AWSLambdaExecute', 'AmazonSSMFullAccess'```.
+  5. Finally hit next and give your role a name.
+  6. Once your Role is created, you can officially create your Lambda function and attach that new Role to that new function.
 
   ##### AWS EC2 -- Role/Policy Setup
-  
-    - Unlike our Lambda function, we need to create 2 policies as well as an EC2 role. We will start with the Policies.
 
-    ###### ECR Policy
-    1. Navigate to IAM console and click create new policy.
-    2. Select Elastic Container Registry for the service.
-    3. I opted to use the JSON format. This can be seen below. If you use this input make sure to fill in the user specific data.
-      ```
-      {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-              "Effect": "Allow",
-              "Action": [
-                  "ecr:BatchGetImage",
-                  "ecr:BatchCheckLayerAvailability",
-                  "ecr:CompleteLayerUpload",
-                  "ecr:GetDownloadUrlForLayer",
-                  "ecr:InitiateLayerUpload",
-                  "ecr:PutImage",
-                  "ecr:UploadLayerPart"
-              ],
-              "Resource": "arn:aws:ecr:<AVAILABILITY_REGION>:<AWS_ACCOUNT_ID>:repository/<ECR_REPO>"
-          },
-          {
-              "Effect": "Allow",
-              "Action": "ecr:GetAuthorizationToken",
-              "Resource": "*"
-          }
-        ]
-      }
-      ```
-    4. Now go next and give this policy a useful name and description.
+  - Unlike our Lambda function, we need to create 2 policies as well as an EC2 role. We will start with the Policies.
 
-    - Now that your ECR policy is created, duplicate this process but this time select Secrets Manager. If you do not use the Secrets Manager service and you instead put your credentials as environment variables, this should not be needed. Below is the JSON format I used.
-      ```
-      {
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-              "Sid": "VisualEditor0",
-              "Effect": "Allow",
-              "Action": "secretsmanager:GetSecretValue",
-              "Resource": "*"
-          }
-        ]
-      }
-      ```
-    - If you have a keen eye, you can see that the resource that is allowed to be accessed is '*', this is because I only have 1 secret, but if you wanted to create a policy specific to a single secret name you can use the ARN in the resource location.
+  ###### ECR Policy
+  1. Navigate to IAM console and click create new policy.
+  2. Select Elastic Container Registry for the service.
+  3. I opted to use the JSON format. This can be seen below. If you use this input make sure to fill in the user specific data.
+    ```
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:CompleteLayerUpload",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:InitiateLayerUpload",
+                "ecr:PutImage",
+                "ecr:UploadLayerPart"
+            ],
+            "Resource": "arn:aws:ecr:<AVAILABILITY_REGION>:<AWS_ACCOUNT_ID>:repository/<ECR_REPO>"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "ecr:GetAuthorizationToken",
+            "Resource": "*"
+        }
+      ]
+    }
+    ```
+  4. Now go next and give this policy a useful name and description.
 
-    ###### ECR Role
+  - Now that your ECR policy is created, duplicate this process but this time select Secrets Manager. If you do not use the Secrets Manager service and you instead put your credentials as environment variables, this should not be needed. Below is the JSON format I used.
+    ```
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "secretsmanager:GetSecretValue",
+            "Resource": "*"
+        }
+      ]
+    }
+    ```
+  - If you have a keen eye, you can see that the resource that is allowed to be accessed is '*', this is because I only have 1 secret, but if you wanted to create a policy specific to a single secret name you can use the ARN in the resource location.
 
-    - Now that our Policies are created for the Lambda function, we can now replicate the same steps as our Role creation for the Lambda. Make sure to use EC2 as our trust relationship. From here we can now add our 2 custom policies as well as a few extras. If you remember, I mentioned that we need to enable SSM access to our EC2 instance as well. This is our list of Policies without our custom ones. ```'AmazonSSMFullAccess', 'AmazonEC2RoleForSSM', 'AmazonSSMManagedInstaceCore', 'AmazonSSMManagedEC2InstanceDefaultPolicy'```.
-    - I did read in some of the documentation that 1 or 2 of those roles will be retired soon but because I did not know when, I decided to add not only the old SSM policies, but the new ones as well. 
-    - Attach this Role to your EC2 instance.
-    - Keep in mind, even with this Role, we do not have access to the RDS database yet. To do this, I decided to navigate to my EC2 instance. Click on your instance, then select the actions dropdown. From the actions drop down you should be able to click network, and then 'Connect RDS database'. This is will walk you through connecting them and should automatically add all the Security group permissions to your EC2 and RDS instances. You should now have all the EC2 access you need.
-    - As I mentioned earlier, I allowed all ip addresses to access the RDS instance should they have the correct login information. I did this for setup and debugging but at this point, you can now remove those inbound and outbound security group rules. Now that your EC2 instance is able to connect to the database, you could in theory get all your db access through your EC2 instance. I decided to leave those security groups for now as I have my credentials setup in Secrets Manager and don't have to worry about security at this point. Plus there is still plenty of development that needs to get done on the API. Once I have the API configured and deployed, I can use Alembic to make migrations, so I will remove those eventually.
+  ###### ECR Role
+
+  - Now that our Policies are created for the Lambda function, we can now replicate the same steps as our Role creation for the Lambda. Make sure to use EC2 as our trust relationship. From here we can now add our 2 custom policies as well as a few extras. If you remember, I mentioned that we need to enable SSM access to our EC2 instance as well. This is our list of Policies without our custom ones. ```'AmazonSSMFullAccess', 'AmazonEC2RoleForSSM', 'AmazonSSMManagedInstaceCore', 'AmazonSSMManagedEC2InstanceDefaultPolicy'```.
+  - I did read in some of the documentation that 1 or 2 of those roles will be retired soon but because I did not know when, I decided to add not only the old SSM policies, but the new ones as well. 
+  - Attach this Role to your EC2 instance.
+  - Keep in mind, even with this Role, we do not have access to the RDS database yet. To do this, I decided to navigate to my EC2 instance. Click on your instance, then select the actions dropdown. From the actions drop down you should be able to click network, and then 'Connect RDS database'. This is will walk you through connecting them and should automatically add all the Security group permissions to your EC2 and RDS instances. You should now have all the EC2 access you need.
+  - As I mentioned earlier, I allowed all ip addresses to access the RDS instance should they have the correct login information. I did this for setup and debugging but at this point, you can now remove those inbound and outbound security group rules. Now that your EC2 instance is able to connect to the database, you could in theory get all your db access through your EC2 instance. I decided to leave those security groups for now as I have my credentials setup in Secrets Manager and don't have to worry about security at this point. Plus there is still plenty of development that needs to get done on the API. Once I have the API configured and deployed, I can use Alembic to make migrations, so I will remove those eventually.
