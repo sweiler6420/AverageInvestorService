@@ -79,11 +79,11 @@ def getDbConnection():
 
     return conn
 
-def getLatestTime():
+def getLatestTime(ticker_symbol):
     """Used to get the most recent data that lives in the db.
     Overview:
     ----
-    creates new connection to db. Then retrieves all data for a particular stock_id
+    creates new connection to db. Then retrieves all data for a particular ticker_symbol
     that has a date between today-4 and today. This is a buffer so that if the script fails 
     it can still catch up on its self. The data is converted to a pandas DataFrame. This DF
     does not have the column names, so we then add the column names from the cursor.description.
@@ -100,10 +100,13 @@ def getLatestTime():
     if not conn:
         exit(0)
 
-    db_query = """
-        select * 
-        from avg_inv.stock_data 
+    db_query = f"""
+        select sd.*
+        from avg_inv.stock_data sd
+        left join avg_inv.stocks s
+        on s.stock_id = sd.stock_id 
         where 1=1
+        and s.ticker_symbol = '{ticker_symbol}'
         and date between current_date - 14 and current_date"""
 
     cursor = conn.cursor()
@@ -267,17 +270,9 @@ def insertNewRows(df):
 
     return count
 
-if __name__ == "__main__":
-
-    # Get config object to access config variables
-    global config
-    config = getConfigVars()
-
-    # Set print of dataframe to no longer truncate
-    pd.set_option("display.max_colwidth", None)
-
+def main(ticker_symbol):
     # Get most recent date, time, and the stock_id that exists in the db
-    max_date, max_time, stock_id = getLatestTime()
+    max_date, max_time, stock_id = getLatestTime(ticker_symbol=ticker_symbol)
 
     # Grab the newest data from alpha vantage
     df = getLatestData(max_date, max_time, stock_id)
@@ -296,8 +291,24 @@ if __name__ == "__main__":
     print("----------------------------------------------------")
 
     # Check latest data
-    max_date, max_time, stock_id = getLatestTime()
+    max_date, max_time, stock_id = getLatestTime(ticker_symbol=ticker_symbol)
     print(f"Data from {max_date} at {max_time} now exist!")
 
     print(f"Rows affected: {count}")
+
+if __name__ == "__main__":
+
+    # Get config object to access config variables
+    global config
+    config = getConfigVars()
+
+    # Set print of dataframe to no longer truncate
+    pd.set_option("display.max_colwidth", None)
+
+    ticker_symbols = ['aapl', 'msft', 'goog', 'amzn', 'meta']
+
+    for ticker in ticker_symbols:
+        print("\n\n\n")
+        print(f"Running for {ticker}!")
+        main(ticker)
 

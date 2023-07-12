@@ -14,7 +14,8 @@ alembic
 *.ini
 
 # Data
-/data
+/data/generated_data
+/data/tos_data
 *.ps1
 
 # DB Migrations
