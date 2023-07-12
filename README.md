@@ -1,5 +1,6 @@
 # The Average Investor -- Full Docs
   - This website was built by Stephen Weiler in it's entirety. If you have any questions please let me know!
+  - This README.md and project is a WIP, please ignore any typos as i am mainly focused on the development more than the documentation!
 
 ## TABLE OF CONTENTS
 
