@@ -100,6 +100,7 @@ def getLatestTime(ticker_symbol):
     if not conn:
         exit(0)
 
+
     db_query = f"""
         select sd.*
         from avg_inv.stock_data sd
@@ -158,7 +159,7 @@ def getLatestTime(ticker_symbol):
 #     print(df)
 
 
-def getLatestData(max_date, max_time, stock_id):
+def getLatestData(max_date, max_time, stock_id, ticker_symbol):
     """Used to retrieve the newest data that needs to be added to the db
     Overview:
     ----
@@ -179,7 +180,7 @@ def getLatestData(max_date, max_time, stock_id):
     ----
     {pandas.DataFrame} -- This holds all the new data, normalized, that need to be inserted into the db
     """
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=AMZN&interval=5min&outputsize=full&apikey={config.get('ec2', 'ALPHAVANTAGE_API_KEY')}"
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker_symbol}&interval=5min&outputsize=full&apikey={config.get('ec2', 'ALPHAVANTAGE_API_KEY')}"
     r = requests.get(url)
     data = r.json()
 
@@ -275,7 +276,7 @@ def main(ticker_symbol):
     max_date, max_time, stock_id = getLatestTime(ticker_symbol=ticker_symbol)
 
     # Grab the newest data from alpha vantage
-    df = getLatestData(max_date, max_time, stock_id)
+    df = getLatestData(max_date, max_time, stock_id, ticker_symbol)
 
     # Formatting Logging
     print(f"Data from {max_date} at {max_time} currently exist!")
