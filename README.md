@@ -1,6 +1,6 @@
 # The Average Investor -- Full Docs
   - This website was built by Stephen Weiler in it's entirety. If you have any questions please let me know!
-  - This README.md and project is a WIP, please ignore any typos as i am mainly focused on the development more than the documentation!
+  - This README.md and project is a WIP, please ignore any typos as I am mainly focused on the development more than the documentation!
 
 ## TABLE OF CONTENTS
 
@@ -31,6 +31,7 @@
         - [AWS EC2 -- Role/Policy Setup](#aws-ec2----rolepolicy-setup)
           - [ECR Policy](#ecr-policy)
           - [ECR Role](#ecr-role)
+      - [Raspberry Pi Server](#raspberry-pi-server)
 
 ## Why?
 
@@ -57,10 +58,10 @@
   - Just a note here. There is a [requirements.txt](ec2/requirements.txt) for the docker image as well as a config.ini file. I decided not to include a template for the config.ini just to save me some time. 
 
 ### Back End
-  1. WIP! This is the next step in the creation of this website! Wish me luck! The API will be created using python and fastapi. It will be ran serverless through lambda and utilize API Gateway for request configuration and tracking. While API Gateway is TOTALLY not needed for this project, it may be thrown out. I would like to include API Gateway but once again we are limited by AWS free tier usage. Depending on the size of the docker image for the api, i would like to use ECR again in order to make deployments and changes easier. I would also like to automate db migrations from the ECR image, possibly using lambda or ec2 to run the migrations but if i hit limitations i will have to settle for local migrations for the time being.
+  1. WIP! This is the next step in the creation of this website! Wish me luck! The API will be created using python and fastapi. It will be ran serverless through lambda and utilize API Gateway for request configuration and tracking. While API Gateway is TOTALLY not needed for this project, it may be thrown out. I would like to include API Gateway but once again we are limited by AWS free tier usage. Depending on the size of the docker image for the api, I would like to use ECR again in order to make deployments and changes easier. I would also like to automate db migrations from the ECR image, possibly using lambda or ec2 to run the migrations but if I hit limitations I will have to settle for local migrations for the time being.
 
 ### Front End
-  1. React will be used for front end and will be hosted using AWS Amplify. This is the ideal way of hosting the react front end but depending on the limitations i may have to swap it to EC2. I would prefer to host it using a seperate AWS Service in order to integrate as many services as i can.
+  1. React will be used for front end and will be hosted using AWS Amplify. This is the ideal way of hosting the react front end but depending on the limitations I may have to swap it to EC2. I would prefer to host it using a seperate AWS Service in order to integrate as many services as I can.
 
 ## Services Used
 
@@ -241,3 +242,69 @@
   - Attach this Role to your EC2 instance.
   - Keep in mind, even with this Role, we do not have access to the RDS database yet. To do this, I decided to navigate to my EC2 instance. Click on your instance, then select the actions dropdown. From the actions drop down you should be able to click network, and then 'Connect RDS database'. This is will walk you through connecting them and should automatically add all the Security group permissions to your EC2 and RDS instances. You should now have all the EC2 access you need.
   - As I mentioned earlier, I allowed all ip addresses to access the RDS instance should they have the correct login information. I did this for setup and debugging but at this point, you can now remove those inbound and outbound security group rules. Now that your EC2 instance is able to connect to the database, you could in theory get all your db access through your EC2 instance. I decided to leave those security groups for now as I have my credentials setup in Secrets Manager and don't have to worry about security at this point. Plus there is still plenty of development that needs to get done on the API. Once I have the API configured and deployed, I can use Alembic to make migrations, so I will remove those eventually.
+
+
+#### Raspberry Pi Server
+
+- As our project grows, we are starting to run into aws free tier threshold issues. In the search for a cheap (free) method of hosting my architecture(s) I have decided to try running the api on a raspberry pi and hosting it on my local network. I am going to lay out the steps I have taken so that I can replicate them in case of scaling. I would eventually like to also self host airflow on a raspberry pi but I have a feeling we may run into issues as airflow is a relatively hardware expensive program. 
+
+1. Obtain a raspberry pi 4 and install raspbian x86 on a relatively large sd card. I opted to setup some settings on the load, mainly enabling ssh, creating a user name and password, and connecting to the network at my house. 
+2. While the above settings helped, I still needed to login to the raspberry pi with a monitor and set a hostname for which I can access through ssh. This is pretty simple to do so I will not explain how. 
+3. After rebooting and connecting via ssh, I removed all empty folders except Desktop and Public.
+4. Next I installed docker using below commands
+   ```
+    sudo apt update
+    sudo apt install docker.io
+   ```
+5. Once we have docker installed, I personally needed to change access for my user by running the below command 
+   ```
+    sudo usermod -aG docker <your_user_id>
+   ```
+6. After this I created a script called run_server.sh with the below contents
+   ```
+    sudo service docker start
+
+    docker system prune -a -f
+
+    aws ecr get-login-password | docker login --password-stdin --username AWS 691378484937.dkr.ecr.us-east-2.amazonaws.com
+
+    docker pull <amazon_user_id>.dkr.ecr.<aws_region>.amazonaws.com/<ecr_repo_name>:latest
+
+    docker run -p 8080:8080 -v ~/.aws:/root/.aws <amazon_user_id>.dkr.ecr.us-east-2.amazonaws.com/<ecr_repo_name>:latest
+    ```
+    - If you recognize part of this script, it is because we used a similar script to pull our ec2 image from ecr in my associated services repo!
+    - To walk through this script, starting top down. The first command ensures docker is actively running on our "server". Then we clean up all containers and images that were previously pulled in order to maintain a clean server. Now we can pull down the image from ecr. There is some debugging you may need to do here in order to get a successful login, but keep in mind, until you finish the next steps, this shell script will not run :). Finally, once the image is pulled down, we can run the image and port forward on whatever port you want to use. For me I am running an api so port 8080 makes sense. 
+
+7. Now we need to make a new ECR repo for whatever you would like to deploy here in aws console. Again, for me this is my api image. You can see the api code and docker file here. Once you make the ecr repo, you can use the push commands shown in the console but you must specify the platform on the build command. These push commands should be ran on the main computer with your code that you want to dockerize.
+   ```
+   --platform linux/arm64/v8
+   ```
+8. Now we need to install aws-cli on the raspberry pi, and luckily, aws already has this released!
+9. Use this link and follow the directions: https://aws.amazon.com/blogs/developer/aws-cli-v2-now-available-for-linux-arm/
+10. Make sure to configure the credentials for your server. Ideally this would be a seperate user other than the root user, for proof of concept for myself, I am going to use the root credentials :) *Note: this will be changed once I know its working.
+11. If you take a peek back at the run_server.sh and look at the docker run command, you will notice we are specifying a volume with -v. We are mounting our configured aws credentials into the container. This seems to be a better solution than below but I did run this all locally and successfully with the below.
+12. AWS Creds alternative #2, if you are running this through a docker image, which I am, you can actually pass env variables to the container when you run the docker image. To do this, use these commands
+  ```
+    export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+    export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+    export AWS_DEFAULT_REGION=us-west-2
+  ```
+  and specify them when running the image. You must export these env variables prior to running the image! This is definitely not the best way to pass the aws creds into a docker container.
+13.  Now assuming all is correct, we should be able to run this image as a container with all our necessary items!
+14.  If you are getting an authentication error on the ecr login make sure your credentials were configured correctly. Ask me how I know.
+15.  To test your application is running, ssh into your raspberry pi, run your run_server.sh script, and once your server is up and ready, on the computer you sshed into, try accessing 
+  ```
+    http://<raspberry_pi_host_name>.local:<port>
+  ```
+  If you are able to access your server then you are good to go! The hostname is typically "raspberrypi" but like i mentioned earlier, i changed my hostname to make it easier to understand what im actually hitting. The .local is crucial to let your router know you are trying to access a local ip associated by a hostname. I don't know the intricate details but that makes sense to me. 
+16. The last item on the list is to force this run_server.sh script to run on reboot on the raspberry pi so it is running at all times. Lets do this now. Previously I have achieved this by adding it to the rc.local file in linux but i wanted to try the crontab. This is a built in cron scheduler!
+17. run the below command and then enter "1"
+  ```
+    crontab -e
+  ```
+18. Inside this crontab file, add the below line to specify we want to execute this script every boot!
+  ```
+    @reboot /home/<username>/run_server.sh > /home/<username>/api_log.log
+  ```
+19. Once this is added, you can exit this file and reboot the pi. On next boot, your server should automatically pull the latest image from ecr and run it! 
+20. Lastly, to deploy any changes, simply run the push commands again to push the latest image to ECR and reboot your raspberry pi! 
