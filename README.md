@@ -45,7 +45,8 @@
 ### Database
   - This website has a postgres database hosted on AWS RDS.
   - Because of the data limitation on AWS free tier, the database only holds the "FAANG" stocks data. This data is 5 minute intraday data from 2020. 
-  - There is a folder called [db_migrations](db_migrations) that show the database iterations and script I have used to create the database. 
+  - ~~There is a folder called [db_migrations](db_migrations) that show the database iterations and script I have used to create the database.~~ 
+    - I moved the db_migrations over to the API repo and now track it with alembic
   - Everyday, a microservice updates the db with the last trading day's data. How this works is explained next.
 
 ### DB Update Microservice
